@@ -1,3 +1,6 @@
+// tb.v
+`timescale 1ns/1ps
+
 module tb;
 
   reg [3:0] a;
@@ -6,6 +9,7 @@ module tb;
 
   wire [3:0] result;
 
+  // Instantiate Design Under Test (DUT)
   alu uut (
     .a(a),
     .b(b),
@@ -18,28 +22,25 @@ module tb;
     begin
       #1;
       if (result !== expected)
-        $display("FAIL: a=%d b=%d op=%b result=%d expected=%d",
+        $display("FAIL: a=%0d b=%0d op=%0b result=%0d expected=%0d",
                  a, b, op, result, expected);
       else
-        $display("PASS: a=%d b=%d op=%b result=%d",
+        $display("PASS: a=%0d b=%0d op=%0b result=%0d",
                  a, b, op, result);
     end
   endtask
 
   initial begin
 
-    // Addition
+    // Addition test
     a = 4; b = 3; op = 0;
     check(7);
 
-    // Change ONLY op.
-    // This should change result from 7 to 1.
-    // Catches the sensitivity-list bug.
+    // Tests sensitive-list fix (only 'op' changes)
     op = 1;
     check(1);
 
-    // Change input while subtracting.
-    // This exercises the subtract path.
+    // Subtraction tests (tests non-blocking / propagation fix)
     a = 5; b = 3; op = 1;
     check(2);
 
@@ -60,6 +61,7 @@ module tb;
     a = 9; b = 4; op = 1;
     check(5);
 
+    // 3 - 7 = -4 = 4'b1100 = 12 in unsigned decimal
     a = 3; b = 7; op = 1;
     check(12);
 
